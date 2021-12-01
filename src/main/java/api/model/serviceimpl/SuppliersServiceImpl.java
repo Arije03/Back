@@ -11,6 +11,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import api.model.iservice.ISuppliersService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -28,8 +30,7 @@ public class SuppliersServiceImpl implements ISuppliersService {
 			throw new ApiBadRequestException("Supplier object sent is null cannot save!");
 		} else {
 			try {
-				Suppliers supplierToSave = suppliersRepository.save(supplier);
-				return supplierToSave;
+				return suppliersRepository.save(supplier);
 			} catch (ApiBadRequestException e) {
 				System.gc();
 				throw e;
@@ -45,14 +46,11 @@ public class SuppliersServiceImpl implements ISuppliersService {
 		try {
 			List listSuppliers = suppliersRepository.findAll();
 			if (listSuppliers.isEmpty()) {
-				listSuppliers = null;
-				System.gc();
 				throw new ApiRessourceNotFoundException("no suppliers found");
 			}
 			return listSuppliers;
 		} catch (ApiInternalServerException e) {
-			System.gc();
-			throw new ApiInternalServerException(e.getMessage());
+			throw new ApiInternalServerException("Internal server error!");
 		}
 	}
 
@@ -132,6 +130,4 @@ public class SuppliersServiceImpl implements ISuppliersService {
 		}
 	}
 
-	
-	
 }

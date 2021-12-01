@@ -1,5 +1,8 @@
 package api.controllers;
 
+import api.exceptions.apiexceptions.ApiBadRequestException;
+import api.exceptions.apiexceptions.ApiInternalServerException;
+import api.exceptions.apiexceptions.ApiRessourceNotFoundException;
 import api.model.entities.Suppliers;
 import api.model.http.responseModel.ApiResponse;
 import java.util.ArrayList;
@@ -19,58 +22,82 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import api.model.iservice.ISuppliersService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 
 /**
  *
  * @author Makhlouf Helali
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "${api.app.crossOriginsHosts}", maxAge = 3600)
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/api/suppliers/")
 public class SuppliersController {
 
 	@Autowired
 	private ISuppliersService suppliersService;
 
-	@GetMapping("/")
+	@GetMapping("")
 	public ResponseEntity<ApiResponse> listSuppliers(
-		   @RequestParam(required = false) String name
+		@RequestParam(name = "name", defaultValue = "") String name,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "5") int size
 	) {
 
-		List<Suppliers> listSuppliers = new ArrayList();
-		if (name != null) {
-			suppliersService.findSuppliersByName(name).forEach(listSuppliers::add);
+		try {
+			if ("".equals(name)) {
+				return ResponseEntity.ok(
+					new ApiResponse( HttpStatus.OK, "Suppliers successfully fetched", suppliersService.readAllSuppliers()) 
+				);
+			}else{
+				return ResponseEntity.ok(
+					new ApiResponse(
+						HttpStatus.OK,
+						"Supplier successfully fetched",
+						suppliersService.findSuppliersByName("%" + name + "%")
+					)
+				);
+			}
 			
-		}else{
-			suppliersService.readAllSuppliers().forEach(listSuppliers::add);
+		} catch (Exception ex) {
+			throw ex;
 		}
-		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "suppliers succesfully fetched", listSuppliers));
+
 	}
 
-	@PostMapping("/new")
+	@PostMapping("new")
 	public ResponseEntity<ApiResponse> createSupplier(@NotNull @RequestBody(required = false) Suppliers supplier) {
 		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Supplier successfully created", suppliersService.createSupplier(supplier)));
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("{id}")
 	public ResponseEntity<ApiResponse> getSupplierById(@NotNull @PathVariable(required = false) Long id) {
 		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Supplier successfully fetched", suppliersService.findSupplierById(id)));
 	}
 
-	@GetMapping("/suppliername/{name}")
-	public ResponseEntity<ApiResponse> getSupplierByName(@NotNull @PathVariable(required = false) String name) {
-		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Supplier successfully fetched", suppliersService.findSuppliersByName(name)));
+	@GetMapping("suppliername")
+	public ResponseEntity<ApiResponse> getSupplierByName(
+		@RequestParam(required = false, name = "name", defaultValue = "") String name
+	) {
+
+		return ResponseEntity.ok(
+			new ApiResponse(
+				HttpStatus.OK,
+				"Supplier successfully fetched",
+				suppliersService.findSuppliersByName("%" + name + "%")
+			)
+		);
 	}
 
-	@PutMapping("/update/{id}")
+	@PutMapping("update/{id}")
 	public ResponseEntity<ApiResponse> updateSupplier(@NotNull @PathVariable Long id, @RequestBody(required = false) Suppliers supplier) {
 		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Supplier successfully updated", suppliersService.updateSupplier(supplier)));
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("delete/{id}")
 	public ResponseEntity<ApiResponse> deleteSupplier(@NotNull @PathVariable(required = false) Long id) {
 		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Supplier successfully deleted", suppliersService.deleteSupplier(id)));
 	}
-
 
 }

@@ -40,7 +40,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Makhlouf Helali
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "${api.app.crossOriginsHosts}", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

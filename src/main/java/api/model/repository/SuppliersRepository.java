@@ -9,6 +9,9 @@ import api.model.entities.Suppliers;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  *
@@ -16,6 +19,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SuppliersRepository extends JpaRepository<Suppliers, Long> {
-    
-    public List<Suppliers> findSuppliersByName(String name);
+    @Query("SELECT s from Suppliers s WHERE s.name LIKE :x")
+    public List<Suppliers> findSuppliersByName(@Param("x")String name);
 }

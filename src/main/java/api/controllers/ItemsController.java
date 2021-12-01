@@ -30,7 +30,7 @@ import api.model.iservice.IItemsService;
  *
  * @author Makhlouf Helali
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "${api.app.crossOriginsHosts}", maxAge = 3600)
 @RestController
 @RequestMapping("/api/items")
 public class ItemsController {
