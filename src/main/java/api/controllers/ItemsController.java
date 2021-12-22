@@ -39,25 +39,24 @@ public class ItemsController {
 	private IItemsService itemsService;
 
 	@GetMapping("/")
-	public ResponseEntity<ApiResponse> listItems(
-		   @RequestParam(required = false) String wording,
-		   @RequestParam(required = false) Long code
-	) {
-
-		List<Items> listItems = new ArrayList();
-		if (wording != null) {
-			itemsService.findItemsByWording(wording).forEach(listItems::add);
-			
-		}else if (code != null) {
-			itemsService.findItemsByCode(code).forEach(listItems::add);
+	public ResponseEntity<ApiResponse> listItems() {
+		List<Items> listItems = itemsService.readAllItems();
+		if(listItems == null){
+			return ResponseEntity.ok(new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null));
+		}else if(listItems.isEmpty()){
+			return ResponseEntity.ok(new ApiResponse(HttpStatus.NO_CONTENT, "No items found", null));
 		}else{
-			itemsService.readAllItems().forEach(listItems::add);
+			return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "items succesfully fetched", listItems));
 		}
-		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "items succesfully fetched", listItems));
 	}
 
 	@PostMapping("/new")
-	public ResponseEntity<ApiResponse> createItem(@NotNull @RequestBody(required = false) Items item) {
+	public ResponseEntity<ApiResponse> createItem(@RequestBody(required = false) Items item) {
+		if(item == null){
+			return ResponseEntity.ok(new ApiResponse(HttpStatus.BAD_REQUEST, "Bad request", null));
+		}
+		Items itemCreated = itemsService.createItem(item);
+		
 		return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, "Item successfully created", itemsService.createItem(item)));
 	}
 

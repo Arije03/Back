@@ -48,15 +48,9 @@ public class ItemsServiceImpl implements IItemsService {
 	@Override
 	public List<Items> readAllItems() {
 		try {
-			List listItems = itemsRepository.findAll();
-			if (listItems.isEmpty()) {
-				System.gc();
-				throw new ApiRessourceNotFoundException("no items found");
-			}
-			return listItems;
-		} catch (ApiInternalServerException e) {
-			System.gc();
-			throw new ApiInternalServerException(e.getMessage());
+			return itemsRepository.findAll();
+		} catch (Exception e) {
+			throw e;
 		}
 	}
 
